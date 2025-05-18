@@ -15,7 +15,7 @@ export class AuthService {
     if (emailMatch) {
       const passwordMatch = await bcrypt.compare(password, emailMatch.password);
       if (passwordMatch) {
-        const payload = { sub: emailMatch.id };
+        const payload = { userId: emailMatch.id, role: emailMatch.role };
         const accessToken = this.jwtService.sign(payload);
         this.userToken.accessToken = accessToken;
         console.log(`User ${email} authenticated successfully.`);
@@ -28,7 +28,7 @@ export class AuthService {
   async login(
     email: string,
     password: string,
-  ): Promise<{ access_token: string; messenger?: string }> {
+  ): Promise<{ access_token: string; messenger?: string; expireIn?: string }> {
     const isValidUser = await this.validateUser(email, password);
     if (isValidUser) {
       console.log(
@@ -36,6 +36,7 @@ export class AuthService {
       );
       return {
         access_token: this.userToken.accessToken,
+        expireIn: process.env.JWT_EXPIRATION,
         messenger: 'Login successful',
       };
     } else {

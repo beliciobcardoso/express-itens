@@ -14,10 +14,32 @@ export class UserService {
   @Inject()
   private readonly prismaService: PrismaService;
 
-  async userAll() {
+  async userAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.prismaService.user.findMany();
-    if (!users) throw new NotFoundException('No users found');
-    return users;
+    if (!users || users.length === 0)
+      throw new NotFoundException('No users found');
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const usersWithoutPassword = users.map(({ password, ...user }) => user);
+
+    return usersWithoutPassword;
+  }
+
+  async updateUser(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<Omit<User, 'password'>> {
+    const { where, data } = params;
+
+    const updatedUser = await this.prismaService.user.update({
+      data,
+      where,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
   }
 
   async UserById(id: string): Promise<User> {
@@ -56,22 +78,5 @@ export class UserService {
     const user = await this.prismaService.user.create({ data: userData });
 
     return user;
-  }
-
-  async updateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<Omit<User, 'password'>> {
-    const { where, data } = params;
-
-    const updatedUser = await this.prismaService.user.update({
-      data,
-      where,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = updatedUser;
-
-    return userWithoutPassword;
   }
 }

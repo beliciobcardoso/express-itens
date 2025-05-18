@@ -55,7 +55,7 @@ export class UserService {
   async updateUser(params: {
     where: Prisma.UserWhereUniqueInput;
     data: Prisma.UserUpdateInput;
-  }): Promise<User> {
+  }): Promise<Omit<User, 'password'>> {
     const { where, data } = params;
 
     const updatedUser = await this.prismaService.user.update({
@@ -63,6 +63,9 @@ export class UserService {
       where,
     });
 
-    return updatedUser;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
   }
 }

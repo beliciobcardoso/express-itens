@@ -40,7 +40,7 @@ export class UserController {
   UserUpdate(
     @Body() userData: Prisma.UserUpdateInput,
     @Param('id') id: string,
-  ): Promise<UserModel> {
+  ): Promise<Omit<UserModel, 'password'>> {
     return this.userService.updateUser({ where: { id }, data: userData });
   }
 }

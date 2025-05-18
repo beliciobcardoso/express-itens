@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -32,7 +38,7 @@ export class UserService {
     const user = await this.prismaService.user.findUnique({
       where: { email },
     });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     return user;
   }
 

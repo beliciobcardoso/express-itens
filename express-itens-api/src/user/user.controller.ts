@@ -5,9 +5,8 @@ import { UserService } from './user.service';
 export class UserController {
   @Inject()
   private readonly userService: UserService;
-
   @Get()
   getUserAll() {
-    return this.userService.getUserAll();
+    return this.userService.userAll();
   }
 }

@@ -1,17 +1,23 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  @Inject()
-  private readonly userService: UserService;
+  @Inject() private readonly userService: UserService;
+  @Inject() private readonly jwtService: JwtService;
+
+  userToken = { accessToken: '' };
 
   async validateUser(email: string, password: string): Promise<boolean> {
     const emailMatch = await this.userService.findUserByEmail(email);
     if (emailMatch) {
       const passwordMatch = await bcrypt.compare(password, emailMatch.password);
       if (passwordMatch) {
+        const payload = { sub: emailMatch.id };
+        const accessToken = this.jwtService.sign(payload);
+        this.userToken.accessToken = accessToken;
         console.log(`User ${email} authenticated successfully.`);
         return true;
       }
@@ -19,10 +25,19 @@ export class AuthService {
     return false;
   }
 
-  async login(email: string, password: string): Promise<string> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string; messenger?: string }> {
     const isValidUser = await this.validateUser(email, password);
     if (isValidUser) {
-      throw new HttpException('Login successful', HttpStatus.OK);
+      console.log(
+        `Generated JWT token for user ${email}: ${this.userToken.accessToken}`,
+      );
+      return {
+        access_token: this.userToken.accessToken,
+        messenger: 'Login successful',
+      };
     } else {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }

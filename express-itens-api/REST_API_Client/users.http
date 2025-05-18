@@ -20,20 +20,34 @@ Content-Type: application/json
 }
 
 ###
+# @name token
+POST {{host}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "john.doe.updated@example.com",
+  "password": "newpassword123"
+}
+
+
+###
 GET {{host}}/users HTTP/1.1
 Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 ###
 GET {{host}}/users/fad98035-9571-4feb-896b-d8ec53d2851e HTTP/1.1
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 ###
 GET {{host}}/users/email/john.doe.updated@example.com HTTP/1.1
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 ###
 POST {{host}}/users HTTP/1.1
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
@@ -45,6 +59,7 @@ Content-Type: application/json
 
 ###
 POST {{host}}/users HTTP/1.1
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {

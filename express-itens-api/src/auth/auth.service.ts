@@ -12,6 +12,9 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<boolean> {
     const emailMatch = await this.userService.findUserByEmail(email);
+    if (emailMatch.active === false) {
+      throw new HttpException('User is inactive', HttpStatus.UNAUTHORIZED);
+    }
     if (emailMatch) {
       const passwordMatch = await bcrypt.compare(password, emailMatch.password);
       if (passwordMatch) {
